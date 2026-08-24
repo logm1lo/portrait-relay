@@ -40,7 +40,7 @@ dependencies = [
   "prettytable==3.16.0",
   "protobuf>=6.33.5,<8",
   "psutil==7.2.2",
-  "requests==2.32.5",
+  "requests==2.33.0",
   "scikit-image==0.25.2",
   "scikit-learn==1.7.1",
   "scipy==1.16.1",
