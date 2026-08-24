@@ -55,10 +55,10 @@ desktop = [
   "pygrabber==0.2; sys_platform == 'win32'",
   "PySide6>=6.7,<7",
 ]
-cpu = ["onnxruntime==1.28.0"]
+cpu = ["onnxruntime==1.29.0"]
 cuda12 = ["onnxruntime-gpu==1.26.0; sys_platform != 'darwin'"]
 cuda13 = ["onnxruntime-gpu==1.28.0; sys_platform != 'darwin'"]
-coreml = ["onnxruntime==1.28.0; sys_platform == 'darwin'"]
+coreml = ["onnxruntime==1.29.0; sys_platform == 'darwin'"]
 directml = ["onnxruntime-directml==1.24.4; sys_platform == 'win32'"]
 openvino = ["onnxruntime-openvino==1.24.1; sys_platform != 'darwin'"]
 c2pa = ["c2pa-python==0.37.3"]
