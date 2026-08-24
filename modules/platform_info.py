@@ -7,11 +7,11 @@ can branch on without re-querying `platform`, `torch.cuda`, or
 The banner printed by :func:`print_banner` is the single user-facing
 report of which code path the app will take.
 """
+
 from __future__ import annotations
 
 import platform as _platform
 import sys
-from typing import List, Tuple
 
 IS_WINDOWS: bool = _platform.system() == "Windows"
 IS_MACOS: bool = _platform.system() == "Darwin"
@@ -21,22 +21,24 @@ IS_APPLE_SILICON: bool = IS_MACOS and _platform.machine() == "arm64"
 
 def _detect_torch_cuda() -> bool:
     try:
-        import torch  # noqa: WPS433 — local import, avoid hard dep at module load
+        import torch
+
         return bool(torch.cuda.is_available())
     except Exception:
         return False
 
 
-def _detect_onnx_providers() -> List[str]:
+def _detect_onnx_providers() -> list[str]:
     try:
         import onnxruntime
+
         return list(onnxruntime.get_available_providers())
     except Exception:
         return []
 
 
 HAS_TORCH_CUDA: bool = _detect_torch_cuda()
-ONNX_PROVIDERS: List[str] = _detect_onnx_providers()
+ONNX_PROVIDERS: list[str] = _detect_onnx_providers()
 HAS_CUDA_PROVIDER: bool = "CUDAExecutionProvider" in ONNX_PROVIDERS
 HAS_COREML_PROVIDER: bool = "CoreMLExecutionProvider" in ONNX_PROVIDERS
 HAS_DML_PROVIDER: bool = "DmlExecutionProvider" in ONNX_PROVIDERS
@@ -44,20 +46,21 @@ HAS_OPENVINO_PROVIDER: bool = "OpenVINOExecutionProvider" in ONNX_PROVIDERS
 
 # OpenVINO execution-provider config shared by every ONNX session builder.
 # AUTO:GPU,NPU,CPU lets OpenVINO pick the best available device in priority
-# order (Intel GPU → NPU → CPU).
+# order (Intel GPU -> NPU -> CPU).
 OPENVINO_PROVIDER_CONFIG = (
     "OpenVINOExecutionProvider",
     {"device_type": "AUTO:GPU,NPU,CPU"},
 )
 
 
-def camera_backends() -> List[Tuple[int, int]]:
+def camera_backends() -> list[tuple[int, int]]:
     """Return an ordered list of ``(device_index, cv2_backend)`` attempts.
 
     Windows prefers MSMF (60fps capable) with DirectShow as fallback.
     macOS/Linux use the default backend (AVFoundation / V4L2).
     """
     import cv2
+
     if IS_WINDOWS:
         return [
             (0, cv2.CAP_MSMF),

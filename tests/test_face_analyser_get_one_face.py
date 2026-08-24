@@ -10,26 +10,6 @@ def _install_import_stubs():
         "insightface",
         types.SimpleNamespace(app=types.SimpleNamespace(FaceAnalysis=object)),
     )
-    sys.modules.setdefault(
-        "cv2",
-        types.SimpleNamespace(
-            IMREAD_COLOR=1,
-            imread=lambda *_args, **_kwargs: None,
-            imdecode=lambda *_args, **_kwargs: None,
-            imencode=lambda *_args, **_kwargs: (
-                True,
-                types.SimpleNamespace(tofile=lambda *_a, **_k: None),
-            ),
-        ),
-    )
-    sys.modules.setdefault(
-        "numpy",
-        types.SimpleNamespace(uint8=object, fromfile=lambda *_args, **_kwargs: b""),
-    )
-    sys.modules.setdefault(
-        "tqdm",
-        types.SimpleNamespace(tqdm=lambda iterable, **_kwargs: iterable),
-    )
     sys.modules["modules.typing"] = types.SimpleNamespace(Frame=object)
     sys.modules["modules.cluster_analysis"] = types.SimpleNamespace(
         find_cluster_centroids=lambda *args, **kwargs: [],
@@ -83,11 +63,14 @@ class GetOneFaceTests(unittest.TestCase):
         right = Face(30)
         left = Face(3)
 
-        with patch.object(face_analyser, "_is_dml", return_value=False), patch.object(
-            face_analyser,
-            "_analyse_faces",
-            return_value=[right, left],
-        ) as analyse:
+        with (
+            patch.object(face_analyser, "_is_dml", return_value=False),
+            patch.object(
+                face_analyser,
+                "_analyse_faces",
+                return_value=[right, left],
+            ) as analyse,
+        ):
             self.assertIs(face_analyser.get_one_face("frame"), left)
 
         analyse.assert_called_once_with("frame")

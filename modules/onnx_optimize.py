@@ -1,25 +1,25 @@
 """ONNX model optimizations for CoreML execution on Apple Silicon.
 
-Each pass eliminates a different CPU↔ANE round-trip that ORT's CoreML EP
+Each pass eliminates a different CPU<->ANE round-trip that ORT's CoreML EP
 would otherwise introduce:
 
-1. **Shape/Gather constant folding** — Dynamic ``Shape`` → ``Gather`` chains
+1. **Shape/Gather constant folding** - Dynamic ``Shape`` -> ``Gather`` chains
    (e.g. for FPN upsample target sizes in RetinaFace) force ops onto CPU even
    when the input dimensions are known at load time.  We run ONNX shape
    inference with the known input size and replace these chains with constants.
    Float32-noise-level differences only (max ~6e-6).
 
-2. **Pad(reflect) decomposition** — CoreML doesn't support ``Pad(mode=reflect)``.
+2. **Pad(reflect) decomposition** - CoreML doesn't support ``Pad(mode=reflect)``.
    Models using reflect padding (e.g. inswapper_128) get split into many CoreML
    subgraphs with CPU fallbacks between each.  We rewrite each ``Pad(reflect)``
    as equivalent ``Slice`` + ``Concat`` ops that CoreML handles natively.
    Bit-for-bit identical output. (Fixed upstream in microsoft/onnxruntime#28073.)
 
-3. **Split → Slice decomposition** — CoreML's EP doesn't support the ONNX
+3. **Split -> Slice decomposition** - CoreML's EP doesn't support the ONNX
    ``Split`` op, causing partition boundaries in models with channel-wise
    splits (e.g. GFPGAN's SFT modulation). Each 2-way Split becomes two Slices.
 
-4. **Scalar Gather widening** — ORT's CoreML EP rejects ``Gather`` nodes with
+4. **Scalar Gather widening** - ORT's CoreML EP rejects ``Gather`` nodes with
    rank-0 (scalar) indices. StyleGAN-derived models (GFPGAN) slice per-layer
    style codes using exactly this pattern. We widen each scalar index to
    ``[1]`` and squeeze the added axis on the Gather output.
@@ -37,7 +37,7 @@ import numpy as np
 IS_APPLE_SILICON = platform.system() == "Darwin" and platform.machine() == "arm64"
 
 
-def optimize_for_coreml(model_path: str, input_shape: tuple = None) -> str:
+def optimize_for_coreml(model_path: str, input_shape: tuple | None = None) -> str:
     """Return path to a CoreML-optimized ONNX model.
 
     Applies all applicable optimizations and caches the result next to
@@ -95,11 +95,12 @@ def optimize_for_coreml(model_path: str, input_shape: tuple = None) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Pass 1: Fold Shape → Gather chains into constants
+# Pass 1: Fold Shape -> Gather chains into constants
 # ---------------------------------------------------------------------------
 
+
 def _fold_shape_gather(model, input_shape) -> bool:
-    """Replace dynamic Shape→Gather chains with constants when input size is known.
+    """Replace dynamic Shape->Gather chains with constants when input size is known.
 
     Only removes a Shape node when ALL of its consumers are Gather nodes
     that are also being folded.  This prevents breaking graphs where
@@ -138,13 +139,13 @@ def _fold_shape_gather(model, input_shape) -> bool:
 
     inits = {init.name: numpy_helper.to_array(init) for init in graph.initializer}
 
-    # Build consumer map: output_name → list of consuming nodes
+    # Build consumer map: output_name -> list of consuming nodes
     consumers = {}
     for node in graph.node:
         for i in node.input:
             consumers.setdefault(i, []).append(node)
 
-    # Also check graph outputs — an output name consumed by the graph
+    # Also check graph outputs - an output name consumed by the graph
     # output list must not be removed
     graph_output_names = {o.name for o in graph.output}
 
@@ -172,7 +173,7 @@ def _fold_shape_gather(model, input_shape) -> bool:
     if not gather_constants:
         return False
 
-    # Determine which Gather nodes to fold (always safe — we replace
+    # Determine which Gather nodes to fold (always safe - we replace
     # the output with a constant initializer)
     gather_remove_ids = set()
     for node in graph.node:
@@ -207,16 +208,17 @@ def _fold_shape_gather(model, input_shape) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Pass 2: Decompose Pad(reflect) → Slice + Concat
+# Pass 2: Decompose Pad(reflect) -> Slice + Concat
 #
 # TEMPORARY: fixed upstream in microsoft/onnxruntime#28073 (merged 2026-04-20).
 # Once the ORT floor is >= 1.26.0, MLProgram handles Pad(mode=reflect) natively
 # via MIL tensor_operation.pad and this entire pass can be deleted.
 # ---------------------------------------------------------------------------
 
+
 def _decompose_reflect_pad(model) -> bool:
     """Rewrite Pad(reflect) as Slice+Concat sequences CoreML can handle."""
-    from onnx import numpy_helper, helper
+    from onnx import helper, numpy_helper
 
     graph = model.graph
     inits = {init.name: numpy_helper.to_array(init) for init in graph.initializer}
@@ -283,60 +285,70 @@ def _decompose_reflect_pad(model) -> bool:
             top = []
             for i in range(h_pad, 0, -1):
                 name = f"_rp_t{uid()}"
-                new_nodes.append(helper.make_node(
-                    "Slice",
-                    inputs=[current, f"_rp_p{i}", f"_rp_p{i+1}", "_rp_ax2"],
-                    outputs=[name],
-                ))
+                new_nodes.append(
+                    helper.make_node(
+                        "Slice",
+                        inputs=[current, f"_rp_p{i}", f"_rp_p{i + 1}", "_rp_ax2"],
+                        outputs=[name],
+                    )
+                )
                 top.append(name)
 
             bot = []
             for i in range(1, h_pad + 1):
                 name = f"_rp_b{uid()}"
-                new_nodes.append(helper.make_node(
-                    "Slice",
-                    inputs=[current, f"_rp_n{i+1}", f"_rp_n{i}", "_rp_ax2"],
-                    outputs=[name],
-                ))
+                new_nodes.append(
+                    helper.make_node(
+                        "Slice",
+                        inputs=[current, f"_rp_n{i + 1}", f"_rp_n{i}", "_rp_ax2"],
+                        outputs=[name],
+                    )
+                )
                 bot.append(name)
 
             h_out = f"_rp_h{uid()}"
-            new_nodes.append(helper.make_node(
-                "Concat", inputs=top + [current] + bot, outputs=[h_out], axis=2
-            ))
+            new_nodes.append(
+                helper.make_node("Concat", inputs=[*top, current, *bot], outputs=[h_out], axis=2)
+            )
             current = h_out
 
         if w_pad > 0:
             left = []
             for i in range(w_pad, 0, -1):
                 name = f"_rp_l{uid()}"
-                new_nodes.append(helper.make_node(
-                    "Slice",
-                    inputs=[current, f"_rp_p{i}", f"_rp_p{i+1}", "_rp_ax3"],
-                    outputs=[name],
-                ))
+                new_nodes.append(
+                    helper.make_node(
+                        "Slice",
+                        inputs=[current, f"_rp_p{i}", f"_rp_p{i + 1}", "_rp_ax3"],
+                        outputs=[name],
+                    )
+                )
                 left.append(name)
 
             right = []
             for i in range(1, w_pad + 1):
                 name = f"_rp_r{uid()}"
-                new_nodes.append(helper.make_node(
-                    "Slice",
-                    inputs=[current, f"_rp_n{i+1}", f"_rp_n{i}", "_rp_ax3"],
-                    outputs=[name],
-                ))
+                new_nodes.append(
+                    helper.make_node(
+                        "Slice",
+                        inputs=[current, f"_rp_n{i + 1}", f"_rp_n{i}", "_rp_ax3"],
+                        outputs=[name],
+                    )
+                )
                 right.append(name)
 
-            new_nodes.append(helper.make_node(
-                "Concat",
-                inputs=left + [current] + right,
-                outputs=[node.output[0]],
-                axis=3,
-            ))
+            new_nodes.append(
+                helper.make_node(
+                    "Concat",
+                    inputs=[*left, current, *right],
+                    outputs=[node.output[0]],
+                    axis=3,
+                )
+            )
         elif h_pad > 0:
-            new_nodes.append(helper.make_node(
-                "Identity", inputs=[current], outputs=[node.output[0]]
-            ))
+            new_nodes.append(
+                helper.make_node("Identity", inputs=[current], outputs=[node.output[0]])
+            )
 
     # Remove old Pad initializers
     clean_inits = [i for i in graph.initializer if i.name not in pad_init_names]
@@ -349,8 +361,9 @@ def _decompose_reflect_pad(model) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Pass 3: Decompose Split → Slice pairs
+# Pass 3: Decompose Split -> Slice pairs
 # ---------------------------------------------------------------------------
+
 
 def _decompose_split(model) -> bool:
     """Rewrite Split(axis=1) as Slice pairs that CoreML can handle.
@@ -359,7 +372,7 @@ def _decompose_split(model) -> bool:
     boundaries in models that use channel-wise splits (e.g. GFPGAN's SFT
     modulation layers).  Each Split with two outputs becomes two Slice ops.
     """
-    from onnx import numpy_helper, helper
+    from onnx import helper, numpy_helper
 
     graph = model.graph
 
@@ -431,20 +444,21 @@ def _decompose_split(model) -> bool:
 # `Gather does not support scalar 'indices'`. The builder's own comment
 # describes the workaround (promote to [1], squeeze the added axis) but
 # doesn't apply it. We do the same thing at the ONNX level so StyleGAN-
-# family models (GFPGAN is the hot example — 16 per-layer style-code
+# family models (GFPGAN is the hot example - 16 per-layer style-code
 # slices) don't split the CoreML subgraph. Once the upstream fix ships
 # and the ORT floor is raised, delete this pass.
 # ---------------------------------------------------------------------------
+
 
 def _rewrite_scalar_gather(model) -> bool:
     """Rewrite Gather(data, scalar_idx) as Gather(data, [scalar_idx]) + Squeeze.
 
     Only touches Gather nodes whose index is a rank-0 int64 constant or
     initializer; everything else passes through unchanged. The rewrite
-    is semantically identical — indices get an added leading axis, the
+    is semantically identical - indices get an added leading axis, the
     Squeeze removes it after the gather.
     """
-    from onnx import numpy_helper, helper, TensorProto
+    from onnx import TensorProto, helper, numpy_helper
 
     graph = model.graph
 
@@ -532,8 +546,9 @@ def _rewrite_scalar_gather(model) -> bool:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _preserve_emap_position(model, numpy_helper):
-    """Keep the insightface emap (512×512 matrix) as the last initializer."""
+    """Keep the insightface emap (512x512 matrix) as the last initializer."""
     graph = model.graph
     emap_init = None
     for init in graph.initializer:

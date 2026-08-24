@@ -1,438 +1,159 @@
-<h1 align="center">Deep-Live-Cam 2.1.6</h1>
+# Portrait Relay
 
-<p align="center">
-  Real-time face swap and video deepfake with a single click and only a single image.
-</p>
+Portrait Relay is a local desktop application for noncommercial face-swap research. It can process images, videos, and live camera frames with ONNX models. Outputs are visibly labeled and receive machine-readable disclosure metadata by default.
 
-<p align="center">
-<a href="https://trendshift.io/repositories/11395" target="_blank"><img src="https://trendshift.io/api/badge/repositories/11395" alt="hacksider%2FDeep-Live-Cam | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</p>
+This project is derived from [Deep-Live-Cam](https://github.com/hacksider/Deep-Live-Cam) at commit `f7db37679a85f6f9ca33e93652b3b03d1dd66ac5`. It is independently maintained and is not affiliated with deeplivecam.net.
 
-<p align="center">
-  <img src="media/demo.gif" alt="Demo GIF" width="800">
-</p>
+## Responsible use
 
-##  Disclaimer
+Use Portrait Relay only with the knowledge and consent of the people represented in the source and target media. Do not use it for impersonation, fraud, harassment, non-consensual intimate imagery, or deceptive publication.
 
-This deepfake software is designed to be a productive tool for the AI-generated media industry. It can assist artists in animating custom characters, creating engaging content, and even using models for clothing design.
+The application cannot determine whether consent exists. Its optional explicit-content screen is a limited classifier, not a consent or safety system.
 
-We are aware of the potential for unethical applications and are committed to preventative measures. A built-in check prevents the program from processing inappropriate media (nudity, graphic content, sensitive material like war footage, etc.). We will continue to develop this project responsibly, adhering to the law and ethics. We may shut down the project or add watermarks if legally required.
+The default disclosure mode adds an `AI-manipulated` label and metadata. Removing disclosure requires an explicit acknowledgement. Metadata can be stripped by other software and is not tamper-resistant unless C2PA signing is configured.
 
-- Ethical Use: Users are expected to use this software responsibly and legally. If using a real person's face, obtain their consent and clearly label any output as a deepfake when sharing online.
+## License and model terms
 
-- Content Restrictions: The software includes built-in checks to prevent processing inappropriate media, such as nudity, graphic content, or sensitive material.
+The application source is licensed under AGPL-3.0. Model files have separate terms.
 
-- Legal Compliance: We adhere to all relevant laws and ethical guidelines. If legally required, we may shut down the project or add watermarks to the output.
+InsightFace code is MIT licensed. Models provided by InsightFace, including the inswapper and buffalo model families used here, are limited to noncommercial research unless you obtain separate authorization. See [MODEL_LICENSES.md](MODEL_LICENSES.md) before downloading or using any model.
 
-- User Responsibility: We are not responsible for end-user actions. Users must ensure their use of the software aligns with ethical standards and legal requirements.
+No model file is stored in this repository. The downloader accepts only files in the immutable model manifest and verifies their exact size and SHA-256 digest. GPEN downloads are disabled until their provenance and redistribution terms are resolved.
 
-By using this software, you agree to these terms and commit to using it in a manner that respects the rights and dignity of others.
+## Requirements
 
-Users are expected to use this software responsibly and legally. If using a real person's face, obtain their consent and clearly label any output as a deepfake when sharing online. We are not responsible for end-user actions.
+- Python 3.11 through 3.14
+- FFmpeg and FFprobe on `PATH`
+- A virtual environment
+- One supported ONNX Runtime profile
 
-## Pre-built Deep-Live-Cam 2.7 Ultimate!
+Python 3.12 is the primary development environment. CI also checks Python 3.11, 3.13, and 3.14.
 
-<p align="center">
-  <a href="https://deeplivecam.net/index.php/quickstart">
-    <img src="https://github.com/user-attachments/assets/fa2cdf79-c933-4b93-844a-b087192261ed" width="100%" alt="Lite / Ultimate Download Banner">
-  </a>
-</p>
+## Installation
 
-<p align="center">
-<a href="https://deeplivecam.net/index.php/plans/nvidia-gpu?plan_id=0&group_id=1">
-  <img src="https://github.com/user-attachments/assets/56b61811-3a1e-4672-9b50-cf7f6e8e6852" width="40" alt="Windows">
-</a>
-  &nbsp;&nbsp;&nbsp;
-<a href="https://deeplivecam.net/index.php/plans/nvidia-gpu?plan_id=0&group_id=2">
-  <img src="https://github.com/user-attachments/assets/6538e3a6-c957-431a-b586-2d6abcf534dc" width="34" alt="Mac Silicon">
-</a>
-  &nbsp;&nbsp;&nbsp;
-<a href="https://deeplivecam.net/index.php/plans/nvidia-gpu?plan_id=0&group_id=3">
-  <img src="https://github.com/user-attachments/assets/ad45142e-426c-4364-a2a9-a512670cc62c" width="40" alt="CPU">
-</a>
-</p>
-
-<p align="center">
-  <strong>Windows • Mac Silicon • CPU • NVIDIA • AMD</strong>
-</p>
-
-<p align="center">
-  Builds optimized for your hardware.
-</p>
-
-<p align="center">
-  <a href="https://deeplivecam.net/index.php/quickstart">
-    <img src="media/Download.png" width="280" alt="Download">
-  </a>
-</p>
-
-> **Ultimate** includes **30+ exclusive features**, performance optimizations, and **priority support** We only have a single official website which is https://deeplivecam.net . Please be careful on where you download other versions of this application aside from that website and this github repo.
-
-Perfect if you want the fastest setup with **zero manual installation**, pre-configured dependencies, and optimized builds for every supported platform.
-
-## TLDR; Live Deepfake in just 3 Clicks
-![easysteps](https://github.com/user-attachments/assets/af825228-852c-411b-b787-ffd9aac72fc6)
-1. Select a face
-2. Select which camera to use
-3. Press live!
-
-## Features & Uses - Everything is in real-time
-
-### Mouth Mask
-
-**Retain your original mouth for accurate movement using Mouth Mask**
-
-<p align="center">
-  <img src="media/ludwig.gif" alt="resizable-gif">
-</p>
-
-### Face Mapping
-
-**Use different faces on multiple subjects simultaneously**
-
-<p align="center">
-  <img src="media/streamers.gif" alt="face_mapping_source">
-</p>
-
-### Your Movie, Your Face
-
-**Watch movies with any face in real-time**
-
-<p align="center">
-  <img src="media/movie.gif" alt="movie">
-</p>
-
-### Live Show
-
-**Run Live shows and performances**
-
-<p align="center">
-  <img src="media/live_show.gif" alt="show">
-</p>
-
-### Memes
-
-**Create Your Most Viral Meme Yet**
-
-<p align="center">
-  <img src="media/meme.gif" alt="show" width="450"> 
-  <br>
-  <sub>Created using Many Faces feature in Deep-Live-Cam</sub>
-</p>
-
-### Omegle
-
-**Surprise people on Omegle**
-
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/2e9b9b82-fa04-4b70-9f56-b1f68e7672d0" width="450" controls></video>
-</p>
-
-## Installation (Manual)
-
-**Please be aware that the installation requires technical skills and is not for beginners. Consider downloading the quickstart version.**
-
-<details>
-<summary>Click to see the process</summary>
-
-### Installation
-
-This is more likely to work on your computer but will be slower as it utilizes the CPU.
-
-**1. Set up Your Platform**
-
--   Python (3.14 recommended; 3.11-3.14 supported)
--   pip
--   git
--   [ffmpeg](https://www.youtube.com/watch?v=OlNWCpFdVMA) - ```iex (irm ffmpeg.tc.ht)```
--   [Visual Studio 2022 Runtimes (Windows)](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-
-**2. Clone the Repository**
+Clone the standalone repository and create a virtual environment:
 
 ```bash
-git clone --depth 1 https://github.com/hacksider/Deep-Live-Cam.git
-cd Deep-Live-Cam
+git clone https://github.com/logm1lo/portrait-relay.git
+cd portrait-relay
+python -m venv .venv
 ```
 
-**3. Download the Models**
+Activate the environment, then install the desktop application with exactly one runtime profile.
 
-1. [GFPGANv1.4](https://huggingface.co/hacksider/deep-live-cam/resolve/main/GFPGANv1.4.onnx)
-2. [inswapper\_128\_fp16.onnx](https://huggingface.co/hacksider/deep-live-cam/resolve/main/inswapper_128_fp16.onnx)
-
-Place these files in the "**models**" folder.
-
-**4. Install Dependencies**
-
-We highly recommend using a `venv` to avoid issues.
-
-
-For Windows:
-```bash
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-```
-For Linux:
-```bash
-# Ensure you use the installed Python 3.14
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-**For macOS:**
-
-Apple Silicon (M1 through M5) requires specific setup:
+CPU:
 
 ```bash
-# Install Python 3.14
-brew install python@3.14
-
-# Install tkinter package (required for the GUI)
-brew install python-tk@3.14
-
-# Create and activate virtual environment with Python 3.14
-python3.14 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -e ".[desktop,cpu]"
 ```
 
-** In case something goes wrong and you need to reinstall the virtual environment **
+NVIDIA CUDA 12.8 with cuDNN 9:
 
 ```bash
-# Deactivate the virtual environment
-rm -rf venv
-
-# Reinstall the virtual environment
-python -m venv venv
-source venv/bin/activate
-
-# install the dependencies again
-pip install -r requirements.txt
-
-# gfpgan and basicsrs issue fix
-pip install git+https://github.com/xinntao/BasicSR.git@master
-pip uninstall gfpgan -y
-pip install git+https://github.com/TencentARC/GFPGAN.git@master
+python -m pip install -e ".[desktop,cuda12]"
 ```
 
-**Run:** If you don't have a GPU, you can run Deep-Live-Cam using `python run.py`. Note that initial execution will download models (~300MB).
-
-### GPU Acceleration
-
-**CUDA Execution Provider (Nvidia)**
-
-1. Install [CUDA Toolkit 12.8.0](https://developer.nvidia.com/cuda-12-8-0-download-archive)
-2. Install [cuDNN v8.9.7 for CUDA 12.x](https://developer.nvidia.com/rdp/cudnn-archive) (required for onnxruntime-gpu):
-   - Download cuDNN v8.9.7 for CUDA 12.x
-   - Make sure the cuDNN bin directory is in your system PATH
-3. Install dependencies:
+NVIDIA CUDA 13 with cuDNN 9:
 
 ```bash
-pip install -U torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-pip uninstall onnxruntime onnxruntime-gpu
-pip install onnxruntime-gpu==1.21.0
+python -m pip install -e ".[desktop,cuda13]"
 ```
 
-3. Usage:
+Other supported profiles are `coreml`, `directml`, and `openvino`. Do not combine runtime profiles. ONNX Runtime 1.26.x is used for CUDA 12.8; 1.28.x is used for CUDA 13.
+
+## Running
+
+Start the desktop interface:
 
 ```bash
-python run.py --execution-provider cuda
+portrait-relay
 ```
 
-**CoreML Execution Provider (Apple Silicon)**
-
-Apple Silicon (M1 through M5) specific installation:
-
-1. Make sure you've completed the macOS setup above using Python 3.14.
-2. No extra install step is needed — `requirements.txt` pulls the official
-   `onnxruntime` build, whose macOS wheels ship the CoreML execution provider.
-   If you previously installed the unmaintained `onnxruntime-silicon` fork,
-   remove it first, as it shadows the real package:
+The compatibility launcher remains available for the 0.1 release:
 
 ```bash
-pip uninstall onnxruntime-silicon
-pip install -r requirements.txt
+python run.py
 ```
 
-3. Usage:
+Process a file from the command line:
 
 ```bash
-python3.14 run.py --execution-provider coreml
+portrait-relay --source source.jpg --target target.mp4 --output output.mp4
 ```
 
-**Important Notes for macOS:**
-- Python 3.11 is the minimum (onnxruntime dropped 3.10); 3.14 is recommended
-- Always run with `python3.14` command not just `python` if you have multiple Python versions installed
-- If you get error about `_tkinter` missing, reinstall the tkinter package: `brew reinstall python-tk@3.14`
-- If you get model loading errors, check that your models are in the correct folder
-- If you encounter conflicts with other Python versions, consider uninstalling them:
-  ```bash
-  # List all installed Python versions
-  brew list | grep python
-
-  # Uninstall conflicting versions if needed
-  brew uninstall --ignore-dependencies python@3.11
-
-  # Keep only Python 3.14
-  brew cleanup
-  ```
-
-**CoreML Execution Provider (Apple Legacy)**
-
-1. Install dependencies:
+Keep disclosure enabled unless a controlled research workflow requires otherwise:
 
 ```bash
-pip uninstall onnxruntime onnxruntime-coreml
-pip install onnxruntime-coreml==1.21.0
+portrait-relay --source source.jpg --target target.jpg --output output.jpg \
+  --disclosure metadata
 ```
 
-2. Usage:
+Completely unlabeled output requires explicit acknowledgement:
 
 ```bash
-python run.py --execution-provider coreml
+portrait-relay --source source.jpg --target target.jpg --output output.jpg \
+  --disclosure none --acknowledge-unlabeled-output
 ```
 
-**DirectML Execution Provider (Windows)**
+Use `--no-keep-audio` to omit the target audio track.
 
-1. Install dependencies:
+## Model storage
+
+Approved models are downloaded over verified TLS connections from an immutable repository revision. Each file is written to a partial file, checked against the manifest, and atomically moved into place.
+
+Models are stored under `models/` or the standard InsightFace model directory. Both locations are excluded from Git. A file that has the expected name but fails verification is quarantined with an `.invalid` suffix.
+
+GPEN weights are manual-only. Supplying a file does not grant a license to use or redistribute it.
+
+## Output disclosure and C2PA
+
+The modes are:
+
+- `visible+metadata`: visible label and metadata, enabled by default
+- `metadata`: metadata only
+- `none`: no disclosure, requiring explicit acknowledgement
+
+For images and videos, metadata uses the IPTC Digital Source Type `compositeWithTrainedAlgorithmicMedia`. When the optional C2PA dependency and trusted signing credentials are configured, Portrait Relay also signs the final asset.
+
+Set these variables outside the repository:
 
 ```bash
-pip uninstall onnxruntime onnxruntime-directml
-pip install onnxruntime-directml==1.21.0
+export PORTRAIT_RELAY_C2PA_CERT=/secure/path/certificate-chain.pem
+export PORTRAIT_RELAY_C2PA_KEY=/secure/path/private-key.pem
+export PORTRAIT_RELAY_C2PA_ALGORITHM=ps256
 ```
 
-2. Usage:
+On POSIX systems, the private key must not be readable by group or other users. For production signing, use a managed key service or hardware-backed key rather than a file-based key.
+
+## Development
+
+Install the locked development environment:
 
 ```bash
-python run.py --execution-provider directml
+uv sync --frozen --extra test
 ```
 
-**OpenVINO™ Execution Provider (Intel)**
-
-1. Install dependencies:
+Run the local checks:
 
 ```bash
-pip uninstall onnxruntime onnxruntime-openvino
-pip install onnxruntime-openvino==1.21.0
+uv run pytest
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy
+uv run python scripts/check_repository_hygiene.py
+uv run python scripts/check_model_manifest.py
+uv build
 ```
 
-**Note:** `onnxruntime-openvino` newer than 1.21.0 must be installed together with `openvino`, and the two versions must correspond one-to-one. The supported pairings are:
+The local audit, assistant transcripts, prompts, model files, and tool state must never be committed. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-| onnxruntime-openvino | OpenVINO |
-| --- | --- |
-| 1.24.1 | 2025.4.1 |
-| 1.23.0 | 2025.3 |
-| 1.22.0 | 2025.1 |
+## Known limitations
 
-```bash
-# Example: onnxruntime-openvino 1.24.1 pairs with OpenVINO 2025.4.1
-pip install openvino==2025.4.1
-pip install onnxruntime-openvino==1.24.1
-```
+- This is an alpha release and does not guarantee identity fidelity or stable real-time performance on every accelerator.
+- The explicit-content screen has false positives and false negatives.
+- Unsigned metadata can be removed or changed.
+- C2PA trust depends on the certificate and key management used by the operator.
+- The project does not provide legal advice or model licensing.
 
-See the [OpenVINO Execution Provider requirements](https://onnxruntime.ai/docs/execution-providers/OpenVINO-ExecutionProvider.html#requirements) for the full version-mapping details.
-
-2. Usage:
-
-```bash
-python run.py --execution-provider openvino
-```
-</details>
-
-## Usage
-
-**1. Image/Video Mode**
-
--   Execute `python run.py`.
--   Choose a source face image and a target image/video.
--   Click "Start".
--   The output will be saved in a directory named after the target video.
-
-**2. Webcam Mode**
-
--   Execute `python run.py`.
--   Select a source face image.
--   Click "Live".
--   Wait for the preview to appear (10-30 seconds).
--   Use a screen capture tool like OBS to stream.
--   To change the face, select a new source image.
-
-## Download all models in this huggingface link
-- [**Download models here**](https://huggingface.co/hacksider/deep-live-cam/tree/main)
-
-## Command Line Arguments (Unmaintained)
-
-```
-options:
-  -h, --help                                               show this help message and exit
-  -s SOURCE_PATH, --source SOURCE_PATH                     select a source image
-  -t TARGET_PATH, --target TARGET_PATH                     select a target image or video
-  -o OUTPUT_PATH, --output OUTPUT_PATH                     select output file or directory
-  --frame-processor FRAME_PROCESSOR [FRAME_PROCESSOR ...]  frame processors (choices: face_swapper, face_enhancer, ...)
-  --keep-fps                                               keep original fps
-  --keep-audio                                             keep original audio
-  --keep-frames                                            keep temporary frames
-  --many-faces                                             process every face
-  --map-faces                                              map source target faces
-  --mouth-mask                                             mask the mouth region
-  --video-encoder {libx264,libx265,libvpx-vp9}             adjust output video encoder
-  --video-quality [0-51]                                   adjust output video quality
-  --live-mirror                                            the live camera display as you see it in the front-facing camera frame
-  --live-resizable                                         the live camera frame is resizable
-  --max-memory MAX_MEMORY                                  maximum amount of RAM in GB
-  --execution-provider {cpu} [{cpu} ...]                   available execution provider (choices: cpu, ...)
-  --execution-threads EXECUTION_THREADS                    number of execution threads
-  -v, --version                                            show program's version number and exit
-```
-
-Looking for a CLI mode? Using the -s/--source argument will make the run program in cli mode.
-
-## Press
-
- - [**Ars Technica**](https://arstechnica.com/information-technology/2024/08/new-ai-tool-enables-real-time-face-swapping-on-webcams-raising-fraud-concerns/) - *"Deep-Live-Cam goes viral, allowing anyone to become a digital doppelganger"*
- - [**Yahoo!**](https://www.yahoo.com/tech/ok-viral-ai-live-stream-080041056.html) - *"OK, this viral AI live stream software is truly terrifying"*
- - [**CNN Brasil**](https://www.cnnbrasil.com.br/tecnologia/ia-consegue-clonar-rostos-na-webcam-entenda-funcionamento/) - *"AI can clone faces on webcam; understand how it works"*
- - [**Bloomberg Technoz**](https://www.bloombergtechnoz.com/detail-news/71032/kenalan-dengan-teknologi-deep-live-cam-bisa-jadi-alat-menipu) - *"Get to know Deep Live Cam technology, it can be used as a tool for deception."*
- - [**TrendMicro**](https://www.trendmicro.com/vinfo/gb/security/news/cyber-attacks/ai-vs-ai-deepfakes-and-ekyc) - *"AI vs AI: DeepFakes and eKYC"*
- - [**PetaPixel**](https://petapixel.com/2024/08/14/deep-live-cam-deepfake-ai-tool-lets-you-become-anyone-in-a-video-call-with-single-photo-mark-zuckerberg-jd-vance-elon-musk/) - *"Deepfake AI Tool Lets You Become Anyone in a Video Call With Single Photo"*
- - [**SomeOrdinaryGamers**](https://www.youtube.com/watch?time_continue=1074&v=py4Tc-Y8BcY) - *"That's Crazy, Oh God. That's Fucking Freaky Dude... That's So Wild Dude"*
- - [**IShowSpeed**](https://www.youtube.com/live/mFsCe7AIxq8?feature=shared&t=2686) - *"Alright look look look, now look chat, we can do any face we want to look like chat"*
- - [**TechLinked (Linus Tech Tips)**](https://www.youtube.com/watch?v=wnCghLjqv3s&t=551s) - *"They do a pretty good job matching poses, expression and even the lighting"*
- - [**IShowSpeed**](https://youtu.be/JbUPRmXRUtE?t=3964) - *"What the F***! Why do I look like Vinny Jr? I look exactly like Vinny Jr!? No, this shit is crazy! Bro This is F*** Crazy!"*
-
-
-## Credits
-
--   [ffmpeg](https://ffmpeg.org/): for making video-related operations easy
--   [Henry](https://github.com/henryruhs): One of the major contributor in this repo
--   [deepinsight](https://github.com/deepinsight): for their [insightface](https://github.com/deepinsight/insightface) project which provided a well-made library and models. Please be reminded that the [use of the model is for non-commercial research purposes only](https://github.com/deepinsight/insightface?tab=readme-ov-file#license).
--   [havok2-htwo](https://github.com/havok2-htwo): for sharing the code for webcam
--   [GosuDRM](https://github.com/GosuDRM): for the open version of roop
--   [pereiraroland26](https://github.com/pereiraroland26): Multiple faces support
--   [vic4key](https://github.com/vic4key): For supporting/contributing to this project
--   [kier007](https://github.com/kier007): for improving the user experience
--   [qitianai](https://github.com/qitianai): for multi-lingual support
--   [laurigates](https://github.com/laurigates): Decoupling stuffs to make everything faster!
--   [maxwbuckley](https://github.com/maxwbuckley): For making the effort to optimize this for mac!
--   and [all developers](https://github.com/hacksider/Deep-Live-Cam/graphs/contributors) behind libraries used in this project.
--   Footnote: Please be informed that the base author of the code is [s0md3v](https://github.com/s0md3v/roop)
--   All the wonderful users who helped make this project go viral by starring the repo ❤️
-
-[![Stargazers](https://reporoster.com/stars/hacksider/Deep-Live-Cam)](https://github.com/hacksider/Deep-Live-Cam/stargazers)
-
-## Contributions
-
-![Alt](https://repobeats.axiom.co/api/embed/fec8e29c45dfdb9c5916f3a7830e1249308d20e1.svg "Repobeats analytics image")
-
-## Stars to the Moon 🚀
-
-<a href="https://star-history.com/#hacksider/deep-live-cam&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=hacksider/deep-live-cam&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=hacksider/deep-live-cam&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=hacksider/deep-live-cam&type=Date" />
- </picture>
-</a>
+Security reports should follow [SECURITY.md](SECURITY.md). Architecture decisions are recorded under `docs/adr/`.

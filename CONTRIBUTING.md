@@ -1,38 +1,52 @@
-# Collaboration Guidelines and Codebase Quality Standards
+# Contributing
 
-To ensure smooth collaboration and maintain the high quality of our codebase, please adhere to the following guidelines:
+Contributions should be small enough to review and should preserve the noncommercial research scope, disclosure defaults, and model integrity controls.
 
-## Branching Strategy
+## Set up
 
-*   **`premain`**:
-    *   Always push your changes to the `premain` branch initially.
-    *   This safeguards the `main` branch from unintentional disruptions.
-    *   All tests will be performed on the `premain` branch.
-    *   Changes will only be merged into `main` after several hours or days of rigorous testing.
-*   **`experimental`**:
-    *   For large or potentially disruptive changes, use the `experimental` branch.
-    *   This allows for thorough discussion and review before considering a merge into `main`.
+```bash
+uv sync --frozen --extra test
+uv run pytest
+```
 
-## Pre-Pull Request Checklist
+Install a desktop runtime separately when testing the full application, for example:
 
-Before creating a Pull Request (PR), ensure you have completed the following tests:
+```bash
+uv sync --frozen --extra desktop --extra cpu --extra test
+```
 
-### Functionality
+Runtime profiles are mutually exclusive.
 
-*   **Realtime Faceswap**:
-    *   Test with face enhancer **enabled** and **disabled**.
-*   **Map Faces**:
-    *   Test with both options (**enabled** and **disabled**).
-*   **Camera Listing**:
-    *   Verify that all cameras are listed accurately.
+## Before opening a pull request
 
-### Stability
+Run:
 
-*   **Realtime FPS**:
-    *   Confirm that there is no drop in real-time frames per second (FPS).
-*   **Boot Time**:
-    *   Changes should not negatively impact the boot time of either the application or the real-time faceswap feature.
-*   **GPU Overloading**:
-    *   Test for a minimum of 15 minutes to guarantee no GPU overloading, which could lead to crashes.
-*   **App Performance**:
-    *   The application should remain responsive and not exhibit any lag.
+```bash
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy
+uv run pytest --cov=portrait_relay --cov=modules
+uv run python scripts/check_repository_hygiene.py
+uv run python scripts/check_model_manifest.py
+uv build
+```
+
+Add behavior-focused tests for success and failure paths. Avoid tests that only assert mock calls.
+
+## Repository hygiene
+
+Do not commit:
+
+- Model weights, generated media, or private test media
+- Signing certificates or keys
+- `.claude`, `.codex`, `.agents`, prompts, transcripts, or assistant session exports
+- Local audits, terminal captures, coverage HTML, caches, or editor state
+- Bot or assistant co-author trailers in new commits
+
+The imported upstream history is preserved as received. Do not rewrite inherited authorship or remove existing contributor trailers.
+
+Use plain, descriptive commit messages. Do not combine formatting, dependency changes, architecture changes, and behavioral changes in one large commit.
+
+## Modification notices
+
+Substantially changed inherited files should identify the project and modification date in a short module comment. Update `CHANGELOG.md` for user-visible changes.

@@ -1,9 +1,151 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "portrait-relay"
+version = "0.1.0"
+description = "Local, noncommercial face-swap research application"
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+license = { file = "LICENSE" }
+authors = [{ name = "Portrait Relay contributors" }]
+keywords = ["computer-vision", "face-swap", "onnx", "research"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: X11 Applications :: Qt",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = [
+  "albumentations==2.0.8",
+  "cython==3.1.3",
+  "easydict==1.13",
+  "insightface==0.7.3",
+  "keras>=3.0,<4",
+  "matplotlib>=3.10,<4",
+  "numpy>=2.0,<3",
+  "onnx==1.22.0",
+  "opennsfw2==0.18.0",
+  "pillow==12.3.0",
+  "prettytable==3.16.0",
+  "protobuf>=6.33.5,<8",
+  "psutil==7.2.2",
+  "requests==2.32.5",
+  "scikit-image==0.25.2",
+  "scikit-learn==1.7.1",
+  "scipy==1.16.1",
+  "tqdm>=4.66.3,<5",
+  "typing-extensions>=4.15.0",
+]
+
+[project.optional-dependencies]
+desktop = [
+  "cv2-enumerate-cameras==1.3.3",
+  "opencv-python==4.14.0.94",
+  "pygrabber==0.2; sys_platform == 'win32'",
+  "PySide6>=6.7,<7",
+]
+cpu = ["onnxruntime==1.28.0"]
+cuda12 = ["onnxruntime-gpu==1.26.0; sys_platform != 'darwin'"]
+cuda13 = ["onnxruntime-gpu==1.28.0; sys_platform != 'darwin'"]
+coreml = ["onnxruntime==1.28.0; sys_platform == 'darwin'"]
+directml = ["onnxruntime-directml==1.24.4; sys_platform == 'win32'"]
+openvino = ["onnxruntime-openvino==1.24.1; sys_platform != 'darwin'"]
+c2pa = ["c2pa-python==0.37.3"]
+test = [
+  "build==1.3.0",
+  "mypy==1.17.1",
+  "opencv-python==4.14.0.94",
+  "pytest==8.4.1",
+  "pytest-cov==6.2.1",
+  "ruff==0.15.7",
+  "twine==6.1.0",
+  "types-requests==2.32.4.20250809",
+]
+
+[project.scripts]
+portrait-relay = "portrait_relay.cli:main"
+
+[project.urls]
+Repository = "https://github.com/logm1lo/portrait-relay"
+Issues = "https://github.com/logm1lo/portrait-relay/issues"
+Changelog = "https://github.com/logm1lo/portrait-relay/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["portrait_relay", "modules"]
+
+[tool.uv]
+# Albumentations declares the headless OpenCV wheel even when the desktop wheel
+# is installed. Both provide the same cv2 namespace, so the application selects
+# the desktop wheel explicitly and excludes the duplicate transitive package.
+exclude-dependencies = ["opencv-python-headless"]
+conflicts = [
+  [
+    { extra = "cpu" },
+    { extra = "cuda12" },
+    { extra = "cuda13" },
+    { extra = "coreml" },
+    { extra = "directml" },
+    { extra = "openvino" },
+  ],
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = ["-ra", "--strict-config", "--strict-markers"]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+  "integration: tests which invoke local media tools",
+  "performance: opt-in characterization benchmarks",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["portrait_relay", "modules"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError",
+]
+
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.ruff.lint]
-# Deterministic, low-risk rules enforced in CI. Other rules (F841, E402, F821)
-# surface real findings but require human judgement to fix safely, so they are
-# left out of the gate for now. Intentional side-effect imports should be
-# annotated with `# noqa: F401`.
-select = ["E701", "E711", "E712", "F401", "F541"]
+select = ["E4", "E7", "E9", "F", "I", "B", "UP", "RUF"]
+ignore = ["E501", "RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+"modules/gettext.py" = ["E402"]
+"tests/**" = ["B011"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+packages = ["portrait_relay"]
+
+[[tool.mypy.overrides]]
+module = ["cv2", "c2pa", "PIL", "PIL.*"]
+ignore_missing_imports = true

@@ -34,23 +34,25 @@ def build_provider_config(providers=None):
     config = []
     for p in providers:
         if isinstance(p, tuple):
-            # Already configured – pass through
+            # Already configured - pass through
             config.append(p)
         elif p == "CUDAExecutionProvider":
-            # Use bare provider — ONNX Runtime's defaults are fastest on
+            # Use bare provider - ONNX Runtime's defaults are fastest on
             # modern GPUs (Blackwell/sm_120).  Custom options like
             # EXHAUSTIVE cudnn_conv_algo_search hurt performance on these
             # architectures.
             config.append(p)
         elif p == "CoreMLExecutionProvider" and IS_APPLE_SILICON:
-            config.append((
-                "CoreMLExecutionProvider",
-                {
-                    "ModelFormat": "MLProgram",
-                    "MLComputeUnits": "ALL",
-                    "AllowLowPrecisionAccumulationOnGPU": 1,
-                },
-            ))
+            config.append(
+                (
+                    "CoreMLExecutionProvider",
+                    {
+                        "ModelFormat": "MLProgram",
+                        "MLComputeUnits": "ALL",
+                        "AllowLowPrecisionAccumulationOnGPU": 1,
+                    },
+                )
+            )
         elif p == "OpenVINOExecutionProvider":
             # AUTO lets OpenVINO select the best device
             config.append(OPENVINO_PROVIDER_CONFIG)
@@ -59,12 +61,12 @@ def build_provider_config(providers=None):
     return config
 
 
-def run_inference(session: onnxruntime.InferenceSession,
-                  input_name: str,
-                  input_tensor: "np.ndarray") -> "np.ndarray":
+def run_inference(
+    session: onnxruntime.InferenceSession, input_name: str, input_tensor: "np.ndarray"
+) -> "np.ndarray":
     """Run ONNX inference, using IO binding when a CUDA session is active.
 
-    IO binding avoids redundant host↔device copies by transferring the
+    IO binding avoids redundant host<->device copies by transferring the
     input tensor directly to GPU memory and letting ONNX Runtime allocate
     the output on the device.  Falls back to the standard ``session.run``
     path for non-CUDA providers or if binding fails.
@@ -73,9 +75,11 @@ def run_inference(session: onnxruntime.InferenceSession,
         try:
             io_binding = session.io_binding()
 
-            # Input: numpy → GPU
+            # Input: numpy -> GPU
             ort_input = onnxruntime.OrtValue.ortvalue_from_numpy(
-                input_tensor, "cuda", 0,
+                input_tensor,
+                "cuda",
+                0,
             )
             io_binding.bind_ortvalue_input(input_name, ort_input)
 
@@ -98,14 +102,16 @@ def create_onnx_session(model_path: str) -> onnxruntime.InferenceSession:
     """Create an ONNX Runtime session with optimised provider config.
 
     On Apple Silicon, applies CoreML graph optimizations (Pad decomposition,
-    Shape/Gather folding, Split decomposition) to reduce CPU↔ANE partition
+    Shape/Gather folding, Split decomposition) to reduce CPU<->ANE partition
     boundaries.
     """
     if IS_APPLE_SILICON:
         from modules.onnx_optimize import optimize_for_coreml
+
         # Infer input shape from the model for Shape/Gather folding
         try:
             import onnx
+
             m = onnx.load(model_path)
             inp = m.graph.input[0]
             dims = inp.type.tensor_type.shape.dim
@@ -117,11 +123,11 @@ def create_onnx_session(model_path: str) -> onnxruntime.InferenceSession:
 
     providers = build_provider_config()
     session_options = onnxruntime.SessionOptions()
-    session_options.graph_optimization_level = (
-        onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
-    )
+    session_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
     session = onnxruntime.InferenceSession(
-        model_path, sess_options=session_options, providers=providers,
+        model_path,
+        sess_options=session_options,
+        providers=providers,
     )
     return session
 
@@ -156,7 +162,7 @@ def preprocess_face(face_img: np.ndarray, input_size: int) -> np.ndarray:
 def postprocess_face(output: np.ndarray) -> np.ndarray:
     """Convert ONNX output [1, 3, H, W] float32 back to BGR uint8 image."""
     img = output[0].transpose(1, 2, 0)
-    img = ((img + 1.0) / 2.0 * 255.0)
+    img = (img + 1.0) / 2.0 * 255.0
     img = np.clip(img, 0, 255).astype(np.uint8)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     return img
@@ -165,28 +171,37 @@ def postprocess_face(output: np.ndarray) -> np.ndarray:
 def _get_face_affine(face: Any, input_size: int):
     """Compute affine transform to align a face to GPEN input space.
 
-    Returns (M, inv_M) — forward and inverse affine matrices.
+    Returns (M, inv_M) - forward and inverse affine matrices.
     """
-    template = np.array([
-        [0.31556875, 0.4615741],
-        [0.68262291, 0.4615741],
-        [0.50009375, 0.6405054],
-        [0.34947187, 0.8246919],
-        [0.65343645, 0.8246919],
-    ], dtype=np.float32) * input_size
+    template = (
+        np.array(
+            [
+                [0.31556875, 0.4615741],
+                [0.68262291, 0.4615741],
+                [0.50009375, 0.6405054],
+                [0.34947187, 0.8246919],
+                [0.65343645, 0.8246919],
+            ],
+            dtype=np.float32,
+        )
+        * input_size
+    )
 
     landmarks = None
     if hasattr(face, "kps") and face.kps is not None:
         landmarks = face.kps.astype(np.float32)
     elif hasattr(face, "landmark_2d_106") and face.landmark_2d_106 is not None:
         lm106 = face.landmark_2d_106
-        landmarks = np.array([
-            lm106[38],  # left eye
-            lm106[88],  # right eye
-            lm106[86],  # nose tip
-            lm106[52],  # left mouth
-            lm106[61],  # right mouth
-        ], dtype=np.float32)
+        landmarks = np.array(
+            [
+                lm106[38],  # left eye
+                lm106[88],  # right eye
+                lm106[86],  # nose tip
+                lm106[52],  # left mouth
+                lm106[61],  # right mouth
+            ],
+            dtype=np.float32,
+        )
 
     if landmarks is None or len(landmarks) < 5:
         return None, None
@@ -210,8 +225,11 @@ def enhance_face_onnx(
         return frame
 
     face_crop = cv2.warpAffine(
-        frame, M, (input_size, input_size),
-        flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE,
+        frame,
+        M,
+        (input_size, input_size),
+        flags=cv2.INTER_LINEAR,
+        borderMode=cv2.BORDER_REPLICATE,
     )
 
     blob = preprocess_face(face_crop, input_size)
@@ -230,15 +248,22 @@ def enhance_face_onnx(
 
     h, w = frame.shape[:2]
     warped_enhanced = cv2.warpAffine(
-        enhanced, inv_M, (w, h),
-        flags=cv2.INTER_LINEAR, borderValue=(0, 0, 0),
+        enhanced,
+        inv_M,
+        (w, h),
+        flags=cv2.INTER_LINEAR,
+        borderValue=(0, 0, 0),
     )
     warped_mask = cv2.warpAffine(
-        mask, inv_M, (w, h),
-        flags=cv2.INTER_LINEAR, borderValue=0,
+        mask,
+        inv_M,
+        (w, h),
+        flags=cv2.INTER_LINEAR,
+        borderValue=0,
     )
 
     mask_3ch = warped_mask[:, :, np.newaxis]
-    result = (warped_enhanced.astype(np.float32) * mask_3ch +
-              frame.astype(np.float32) * (1.0 - mask_3ch))
+    result = warped_enhanced.astype(np.float32) * mask_3ch + frame.astype(np.float32) * (
+        1.0 - mask_3ch
+    )
     return np.clip(result, 0, 255).astype(np.uint8)

@@ -1,9 +1,10 @@
-import cv2
-import numpy as np
-import time
-from typing import Optional, Tuple, Callable
 import platform
 import threading
+import time
+from collections.abc import Callable
+
+import cv2
+import numpy as np
 
 # Only import Windows-specific library if on Windows
 if platform.system() == "Windows":
@@ -46,16 +47,20 @@ class VideoCapturer:
                 #
                 # Pass codec + resolution + fps as construction params (OpenCV
                 # 4.6+). DSHOW locks the pixel format at open time and ignores
-                # later cap.set(CAP_PROP_FOURCC, ...) — without this, DSHOW
+                # later cap.set(CAP_PROP_FOURCC, ...) - without this, DSHOW
                 # falls back to uncompressed YUYV at 1080p, which is USB-
                 # bandwidth-limited to ~5 fps. Setting MJPG at construction
                 # negotiates compressed frames from the first read.
-                mjpg = cv2.VideoWriter_fourcc(*'MJPG')
+                mjpg = cv2.VideoWriter_fourcc(*"MJPG")
                 open_params = [
-                    cv2.CAP_PROP_FOURCC, mjpg,
-                    cv2.CAP_PROP_FRAME_WIDTH, width,
-                    cv2.CAP_PROP_FRAME_HEIGHT, height,
-                    cv2.CAP_PROP_FPS, fps,
+                    cv2.CAP_PROP_FOURCC,
+                    mjpg,
+                    cv2.CAP_PROP_FRAME_WIDTH,
+                    width,
+                    cv2.CAP_PROP_FRAME_HEIGHT,
+                    height,
+                    cv2.CAP_PROP_FPS,
+                    fps,
                 ]
                 capture_methods = [
                     (self.device_index, cv2.CAP_DSHOW),
@@ -83,7 +88,7 @@ class VideoCapturer:
             # post-open changes (MSMF, V4L2). DSHOW ignores these, but the
             # construction params above already handled it.
             if platform.system() != "Windows":
-                self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+                self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
                 self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
                 self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
                 self.cap.set(cv2.CAP_PROP_FPS, fps)
@@ -92,27 +97,28 @@ class VideoCapturer:
             self.actual_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             self.actual_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-            # CAP_PROP_FPS is unreliable on DirectShow — often reports 30
+            # CAP_PROP_FPS is unreliable on DirectShow - often reports 30
             # even when the camera delivers 60.  Measure empirically by
             # timing a burst of frames.
             reported_fps = self.cap.get(cv2.CAP_PROP_FPS)
-            self.actual_fps = self._measure_fps(warmup=10, sample=30,
-                                                fallback=reported_fps or fps)
+            self.actual_fps = self._measure_fps(warmup=10, sample=30, fallback=reported_fps or fps)
 
-            print(f"[VideoCapturer] {self.actual_width}x{self.actual_height} "
-                  f"@ {self.actual_fps:.1f}fps (reported={reported_fps:.0f})",
-                  flush=True)
+            print(
+                f"[VideoCapturer] {self.actual_width}x{self.actual_height} "
+                f"@ {self.actual_fps:.1f}fps (reported={reported_fps:.0f})",
+                flush=True,
+            )
 
             self.is_running = True
             return True
 
         except Exception as e:
-            print(f"Failed to start capture: {str(e)}")
+            print(f"Failed to start capture: {e!s}")
             if self.cap:
                 self.cap.release()
             return False
 
-    def read(self) -> Tuple[bool, Optional[np.ndarray]]:
+    def read(self) -> tuple[bool, np.ndarray | None]:
         """Read a frame from the camera"""
         if not self.is_running or self.cap is None:
             return False, None
@@ -132,8 +138,7 @@ class VideoCapturer:
             self.is_running = False
             self.cap = None
 
-    def _measure_fps(self, warmup: int = 10, sample: int = 30,
-                     fallback: float = 30.0) -> float:
+    def _measure_fps(self, warmup: int = 10, sample: int = 30, fallback: float = 30.0) -> float:
         """Read warmup+sample frames and return measured FPS.
 
         This is more reliable than CAP_PROP_FPS which often lies on

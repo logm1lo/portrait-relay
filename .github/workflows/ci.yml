@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        run: python -m pip install uv==0.12.5
+      - name: Install locked quality environment
+        run: uv sync --frozen --extra test
+      - name: Format
+        run: uv run ruff format --check .
+      - name: Lint
+        run: uv run ruff check .
+      - name: Type check
+        run: uv run mypy
+      - name: Repository policy
+        run: |
+          uv run python scripts/check_repository_hygiene.py
+          uv run python scripts/check_secrets.py
+          uv run python scripts/check_dependency_licenses.py
+          uv run python scripts/check_model_manifest.py
+      - name: Package metadata
+        run: |
+          uv build
+          uv run twine check dist/*
+
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        run: python -m pip install uv==0.12.5
+      - name: Install locked test environment
+        run: uv sync --frozen --extra test
+      - name: Unit tests
+        run: |
+          uv run pytest --cov=portrait_relay --cov=modules --cov-branch --cov-report=term-missing --cov-report=xml
+          uv run coverage report --include='portrait_relay/*' --fail-under=70
+          uv run coverage report --include='portrait_relay/config.py,portrait_relay/provenance.py,portrait_relay/workspace.py,modules/model_downloader.py' --fail-under=90
+
+  desktop-smoke:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        run: python -m pip install uv==0.12.5
+      - name: Install desktop CPU profile
+        run: uv sync --frozen --extra desktop --extra cpu --extra test
+      - name: Lightweight CLI smoke test
+        run: |
+          uv run portrait-relay --help
+          uv run portrait-relay --version
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        run: python -m pip install uv==0.12.5
+      - name: Audit locked dependencies
+        run: uvx --from pip-audit==2.10.1 pip-audit --locked

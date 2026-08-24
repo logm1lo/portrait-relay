@@ -1,4 +1,5 @@
 import os
+
 import cv2
 import numpy as np
 
@@ -26,7 +27,7 @@ def imread_unicode(path, flags=cv2.IMREAD_COLOR):
 # True/False like cv2.imwrite() so it stays a drop-in replacement.
 def imwrite_unicode(path, img, params=None):
     try:
-        root, ext = os.path.splitext(path)
+        _root, ext = os.path.splitext(path)
         if not ext:
             ext = ".png"
         result, encoded_img = cv2.imencode(ext, img, params if params is not None else [])

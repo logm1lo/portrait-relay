@@ -3,7 +3,7 @@
 GPU-accelerated image processing using OpenCV CUDA (cv2.cuda.GpuMat).
 
 Provides drop-in replacements for common cv2 functions.  When OpenCV is built
-with CUDA support the functions transparently upload → process → download via
+with CUDA support the functions transparently upload -> process -> download via
 GpuMat; otherwise they fall back to the regular CPU path so the rest of the
 codebase never has to care whether CUDA is available.
 
@@ -19,9 +19,9 @@ Usage
 from __future__ import annotations
 
 import os
+
 import cv2
 import numpy as np
-from typing import Tuple
 
 # ---------------------------------------------------------------------------
 # CUDA availability detection (evaluated once at import time)
@@ -53,6 +53,7 @@ if os.environ.get("OPENCV_CUDA_PROCESSING") == "1":
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _ensure_uint8(img: np.ndarray) -> np.ndarray:
     """Clip and convert to uint8 if necessary."""
     if img.dtype != np.uint8:
@@ -60,7 +61,7 @@ def _ensure_uint8(img: np.ndarray) -> np.ndarray:
     return img
 
 
-def _ksize_odd(ksize: Tuple[int, int]) -> Tuple[int, int]:
+def _ksize_odd(ksize: tuple[int, int]) -> tuple[int, int]:
     """Ensure kernel dimensions are positive and odd (required by GaussianBlur)."""
     kw = max(1, ksize[0] // 2 * 2 + 1) if ksize[0] > 0 else 0
     kh = max(1, ksize[1] // 2 * 2 + 1) if ksize[1] > 0 else 0
@@ -80,12 +81,13 @@ def _cv_type_for(img: np.ndarray) -> int:
 
 
 # ---------------------------------------------------------------------------
-# Public API – Gaussian Blur
+# Public API - Gaussian Blur
 # ---------------------------------------------------------------------------
+
 
 def gpu_gaussian_blur(
     src: np.ndarray,
-    ksize: Tuple[int, int],
+    ksize: tuple[int, int],
     sigma_x: float,
     sigma_y: float = 0,
 ) -> np.ndarray:
@@ -112,8 +114,9 @@ def gpu_gaussian_blur(
 
 
 # ---------------------------------------------------------------------------
-# Public API – addWeighted
+# Public API - addWeighted
 # ---------------------------------------------------------------------------
+
 
 def gpu_add_weighted(
     src1: np.ndarray,
@@ -140,8 +143,9 @@ def gpu_add_weighted(
 
 
 # ---------------------------------------------------------------------------
-# Public API – Unsharp-mask sharpening
+# Public API - Unsharp-mask sharpening
 # ---------------------------------------------------------------------------
+
 
 def gpu_sharpen(
     src: np.ndarray,
@@ -179,7 +183,7 @@ def gpu_sharpen(
 
 
 # ---------------------------------------------------------------------------
-# Public API – Resize
+# Public API - Resize
 # ---------------------------------------------------------------------------
 
 # Map common cv2 interpolation flags to their CUDA equivalents
@@ -194,7 +198,7 @@ _INTERP_MAP = {
 
 def gpu_resize(
     src: np.ndarray,
-    dsize: Tuple[int, int],
+    dsize: tuple[int, int],
     fx: float = 0,
     fy: float = 0,
     interpolation: int = cv2.INTER_LINEAR,
@@ -224,8 +228,9 @@ def gpu_resize(
 
 
 # ---------------------------------------------------------------------------
-# Public API – Color conversion
+# Public API - Color conversion
 # ---------------------------------------------------------------------------
+
 
 def gpu_cvt_color(
     src: np.ndarray,
@@ -249,8 +254,9 @@ def gpu_cvt_color(
 
 
 # ---------------------------------------------------------------------------
-# Public API – Flip
+# Public API - Flip
 # ---------------------------------------------------------------------------
+
 
 def gpu_flip(
     src: np.ndarray,
@@ -278,8 +284,10 @@ def gpu_flip(
 # Convenience: check at runtime whether GPU path is active
 # ---------------------------------------------------------------------------
 
+
 def is_gpu_accelerated() -> bool:
     """Return ``True`` when the CUDA path will be used."""
     return CUDA_AVAILABLE
+
 
 # --- END OF FILE gpu_processing.py ---

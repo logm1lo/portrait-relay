@@ -1,31 +1,62 @@
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.pyc
-.idea
-.todo
-*.log
-*.backup
-tf_env/
-*.png
-*.mp4
-*.mkv
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
 
-.tmp/
-temp/
+# Virtual environments
 .venv/
 venv/
 env/
-workflow/
-gfpgan/
-models/inswapper_128.onnx
-models/GFPGANv1.4.pth
-*.onnx
-models/DMDNet.pth
-faceswap/
+tf_env/
+
+# Editors and local task state
+.idea/
 .vscode/
+.todo
+*.log
+*.backup
+
+# Local assistant and audit state
+.claude/
+.codex/
+.agents/
+.chatgpt/
+AGENTS.md
+CLAUDE.md
+audit.json
+audit.jsonl
+transcript.md
+
+# Models and generated media
+models/
+*.onnx
+*.pth
+*.ckpt
+*.part
+*.verified
+output/
+outputs/
+.portrait-relay-tmp/
+temp/
+.tmp/
+workflow/
+faceswap/
+gfpgan/
+
+# Local settings from inherited releases
 switch_states.json
-/models
-install.bat
-/.claude
-*.bat
+
+# Private signing material
+*.pem
+*.key
+*.p12
+*.pfx
+*.csr
