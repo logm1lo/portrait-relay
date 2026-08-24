@@ -67,7 +67,7 @@ test = [
   "mypy==1.17.1",
   "opencv-python==4.14.0.94",
   "pytest==9.1.1",
-  "pytest-cov==6.2.1",
+  "pytest-cov==7.1.0",
   "ruff==0.15.7",
   "twine==6.1.0",
   "types-requests==2.33.0.20260712",
