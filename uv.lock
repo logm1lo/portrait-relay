@@ -1958,16 +1958,16 @@ requires-dist = [
     { name = "psutil", specifier = "==7.2.2" },
     { name = "pygrabber", marker = "sys_platform == 'win32' and extra == 'desktop'", specifier = "==0.2" },
     { name = "pyside6", marker = "extra == 'desktop'", specifier = ">=6.7,<7" },
-    { name = "pytest", marker = "extra == 'test'", specifier = "==8.4.1" },
+    { name = "pytest", marker = "extra == 'test'", specifier = "==9.1.1" },
     { name = "pytest-cov", marker = "extra == 'test'", specifier = "==6.2.1" },
-    { name = "requests", specifier = "==2.32.5" },
+    { name = "requests", specifier = "==2.34.2" },
     { name = "ruff", marker = "extra == 'test'", specifier = "==0.15.7" },
     { name = "scikit-image", specifier = "==0.26.0" },
     { name = "scikit-learn", specifier = "==1.9.0" },
     { name = "scipy", specifier = ">=1.17,<1.19" },
     { name = "tqdm", specifier = ">=4.66.3,<5" },
     { name = "twine", marker = "extra == 'test'", specifier = "==6.1.0" },
-    { name = "types-requests", marker = "extra == 'test'", specifier = "==2.32.4.20250809" },
+    { name = "types-requests", marker = "extra == 'test'", specifier = "==2.33.0.20260712" },
     { name = "typing-extensions", specifier = ">=4.15.0" },
 ]
 provides-extras = ["desktop", "cpu", "cuda12", "cuda13", "coreml", "directml", "openvino", "c2pa", "test"]
@@ -2359,7 +2359,7 @@ wheels = [
 
 [[package]]
 name = "pytest"
-version = "8.4.1"
+version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-14-portrait-relay-coreml' and extra == 'extra-14-portrait-relay-cpu') or (extra == 'extra-14-portrait-relay-coreml' and extra == 'extra-14-portrait-relay-cuda12') or (extra == 'extra-14-portrait-relay-coreml' and extra == 'extra-14-portrait-relay-cuda13') or (extra == 'extra-14-portrait-relay-coreml' and extra == 'extra-14-portrait-relay-directml') or (extra == 'extra-14-portrait-relay-coreml' and extra == 'extra-14-portrait-relay-openvino') or (extra == 'extra-14-portrait-relay-cpu' and extra == 'extra-14-portrait-relay-cuda12') or (extra == 'extra-14-portrait-relay-cpu' and extra == 'extra-14-portrait-relay-cuda13') or (extra == 'extra-14-portrait-relay-cpu' and extra == 'extra-14-portrait-relay-directml') or (extra == 'extra-14-portrait-relay-cpu' and extra == 'extra-14-portrait-relay-openvino') or (extra == 'extra-14-portrait-relay-cuda12' and extra == 'extra-14-portrait-relay-cuda13') or (extra == 'extra-14-portrait-relay-cuda12' and extra == 'extra-14-portrait-relay-directml') or (extra == 'extra-14-portrait-relay-cuda12' and extra == 'extra-14-portrait-relay-openvino') or (extra == 'extra-14-portrait-relay-cuda13' and extra == 'extra-14-portrait-relay-directml') or (extra == 'extra-14-portrait-relay-cuda13' and extra == 'extra-14-portrait-relay-openvino') or (extra == 'extra-14-portrait-relay-directml' and extra == 'extra-14-portrait-relay-openvino')" },
@@ -2368,9 +2368,9 @@ dependencies = [
     { name = "pluggy" },
     { name = "pygments" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/08/ba/45911d754e8eba3d5a841a5ce61a65a685ff1798421ac054f85aa8747dfb/pytest-8.4.1.tar.gz", hash = "sha256:7c67fd69174877359ed9371ec3af8a3d2b04741818c51e5e99cc1742251fa93c", size = 1517714, upload-time = "2025-06-18T05:48:06.109Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/47/b9efed96c114afcfa3c9d3fe98a76a1d14c74a9e266d397cf6eb64be5e01/pytest-9.1.1.tar.gz", hash = "sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313", size = 1636369, upload-time = "2026-06-19T10:58:32.857Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/29/16/c8a903f4c4dffe7a12843191437d7cd8e32751d5de349d45d3fe69544e87/pytest-8.4.1-py3-none-any.whl", hash = "sha256:539c70ba6fcead8e78eebbf1115e8b589e7565830d7d006a8723f19ac8a0afb7", size = 365474, upload-time = "2025-06-18T05:48:03.955Z" },
+    { url = "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl", hash = "sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c", size = 386536, upload-time = "2026-06-19T10:58:31.347Z" },
 ]
 
 [[package]]
@@ -2479,7 +2479,7 @@ wheels = [
 
 [[package]]
 name = "requests"
-version = "2.32.5"
+version = "2.34.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
@@ -2487,9 +2487,9 @@ dependencies = [
     { name = "idna" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c9/74/b3ff8e6c8446842c3f5c837e9c3dfcfe2018ea6ecef224c710c85ef728f4/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf", size = 134517, upload-time = "2025-08-18T20:46:02.573Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/c3/e2a2b89f2d3e2179abd6d00ebd70bff6273f37fb3e0cc209f48b39d00cbf/requests-2.34.2.tar.gz", hash = "sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed", size = 142856, upload-time = "2026-05-14T19:25:27.735Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6", size = 64738, upload-time = "2025-08-18T20:46:00.542Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl", hash = "sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0", size = 73075, upload-time = "2026-05-14T19:25:26.443Z" },
 ]
 
 [package.optional-dependencies]
@@ -3149,14 +3149,14 @@ wheels = [
 
 [[package]]
 name = "types-requests"
-version = "2.32.4.20250809"
+version = "2.33.0.20260712"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ed/b0/9355adb86ec84d057fea765e4c49cce592aaf3d5117ce5609a95a7fc3dac/types_requests-2.32.4.20250809.tar.gz", hash = "sha256:d8060de1c8ee599311f56ff58010fb4902f462a1470802cf9f6ed27bc46c4df3", size = 23027, upload-time = "2025-08-09T03:17:10.664Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/db/51/703318f7b7be8bee126ec13bf615050f932d0179b8784420f3a0199cc769/types_requests-2.33.0.20260712.tar.gz", hash = "sha256:2141b67ab534a5c5cd2dac5034f2a35f42e699c5bf185eee608c5246a069d7fb", size = 25084, upload-time = "2026-07-12T05:14:20.455Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/6f/ec0012be842b1d888d46884ac5558fd62aeae1f0ec4f7a581433d890d4b5/types_requests-2.32.4.20250809-py3-none-any.whl", hash = "sha256:f73d1832fb519ece02c85b1f09d5f0dd3108938e7d47e7f94bbfa18a6782b163", size = 20644, upload-time = "2025-08-09T03:17:09.716Z" },
+    { url = "https://files.pythonhosted.org/packages/62/e7/010c87f559e216d83f9dc51e939633fd0d0ead3377340181ab0e223cd3b5/types_requests-2.33.0.20260712-py3-none-any.whl", hash = "sha256:de027e28c171d3da529689cbfa023b0b4eab188c8dfa22fd834eebd2cee6e7bb", size = 21392, upload-time = "2026-07-12T05:14:19.616Z" },
 ]
 
 [[package]]
