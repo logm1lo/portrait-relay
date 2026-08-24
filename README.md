@@ -142,9 +142,13 @@ uv run ruff format --check .
 uv run ruff check .
 uv run mypy
 uv run python scripts/check_repository_hygiene.py
+uv run python scripts/check_secrets.py
+uv run python scripts/check_dependency_licenses.py
 uv run python scripts/check_model_manifest.py
 uv build
 ```
+
+GitHub Dependabot vulnerability alerts and security updates are enabled for the public repository.
 
 The local audit, assistant transcripts, prompts, model files, and tool state must never be committed. See [CONTRIBUTING.md](CONTRIBUTING.md).
 

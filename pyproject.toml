@@ -41,9 +41,9 @@ dependencies = [
   "protobuf>=6.33.5,<8",
   "psutil==7.2.2",
   "requests==2.32.5",
-  "scikit-image==0.25.2",
-  "scikit-learn==1.7.1",
-  "scipy==1.16.1",
+  "scikit-image==0.26.0",
+  "scikit-learn==1.9.0",
+  "scipy>=1.17,<1.19",
   "tqdm>=4.66.3,<5",
   "typing-extensions>=4.15.0",
 ]
